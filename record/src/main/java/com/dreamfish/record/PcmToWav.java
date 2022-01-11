@@ -28,6 +28,8 @@ public class PcmToWav {
      * @return true|false
      */
     public static boolean mergePCMFilesToWAVFile(List<String> filePathList,
+                                                 short bitPerSample,
+                                                 int samplesPerSec,
                                                  String destinationPath) {
         File[] file = new File[filePathList.size()];
         byte buffer[] = null;
@@ -46,10 +48,10 @@ public class PcmToWav {
         // 头部字段的大小(不包括前面4字节的标识符RIFF以及fileLength本身的4字节)
         header.fileLength = TOTAL_SIZE + (44 - 8);
         header.FmtHdrLeth = 16;
-        header.BitsPerSample = 16;
+        header.BitsPerSample = bitPerSample;
         header.Channels = 2;
         header.FormatTag = 0x0001;
-        header.SamplesPerSec = 8000;
+        header.SamplesPerSec = samplesPerSec;
         header.BlockAlign = (short) (header.Channels * header.BitsPerSample / 8);
         header.AvgBytesPerSec = header.BlockAlign * header.SamplesPerSec;
         header.DataHdrLeth = TOTAL_SIZE;
@@ -110,7 +112,11 @@ public class PcmToWav {
      * @param deletePcmFile   是否删除源文件
      * @return
      */
-    public static boolean makePCMFileToWAVFile(String pcmPath, String destinationPath, boolean deletePcmFile) {
+    public static boolean makePCMFileToWAVFile(String pcmPath,
+                                               short bitPerSample,
+                                               int samplesPerSec,
+                                               String destinationPath,
+                                               boolean deletePcmFile) {
         byte buffer[] = null;
         int TOTAL_SIZE = 0;
         File file = new File(pcmPath);
@@ -124,10 +130,10 @@ public class PcmToWav {
         // 头部字段的大小(不包括前面4字节的标识符RIFF以及fileLength本身的4字节)
         header.fileLength = TOTAL_SIZE + (44 - 8);
         header.FmtHdrLeth = 16;
-        header.BitsPerSample = 16;
+        header.BitsPerSample = bitPerSample;
         header.Channels = 2;
         header.FormatTag = 0x0001;
-        header.SamplesPerSec = 8000;
+        header.SamplesPerSec = samplesPerSec;
         header.BlockAlign = (short) (header.Channels * header.BitsPerSample / 8);
         header.AvgBytesPerSec = header.BlockAlign * header.SamplesPerSec;
         header.DataHdrLeth = TOTAL_SIZE;
