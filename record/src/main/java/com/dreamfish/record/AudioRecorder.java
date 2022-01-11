@@ -25,9 +25,11 @@ public class AudioRecorder {
     //采用频率
     //44100是目前的标准，但是某些设备仍然支持22050，16000，11025
     //采样频率一般共分为22.05KHz、44.1KHz、48KHz三个等级
-    private final static int AUDIO_SAMPLE_RATE = 16000;
+    //private final static int AUDIO_SAMPLE_RATE = 16000;
+    private static int audioSampleRate = 16000;
     //声道 单声道
     private final static int AUDIO_CHANNEL = AudioFormat.CHANNEL_IN_MONO;
+
     //编码
     private final static int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     // 缓冲区字节大小
@@ -68,11 +70,13 @@ public class AudioRecorder {
      * 创建录音对象
      */
     public void createAudio(String fileName, int audioSource, int sampleRateInHz, int channelConfig, int audioFormat) {
-        // 获得缓冲区字节大小
+        audioSampleRate = sampleRateInHz;
+                // 获得缓冲区字节大小
         bufferSizeInBytes = AudioRecord.getMinBufferSize(sampleRateInHz,
-                channelConfig, channelConfig);
+                channelConfig, audioFormat);
         audioRecord = new AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes);
         this.fileName = fileName;
+        status = Status.STATUS_READY;
     }
 
     /**
@@ -81,10 +85,11 @@ public class AudioRecorder {
      * @param fileName 文件名
      */
     public void createDefaultAudio(String fileName) {
+        audioSampleRate = 16000;
         // 获得缓冲区字节大小
-        bufferSizeInBytes = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_RATE,
+        bufferSizeInBytes = AudioRecord.getMinBufferSize(audioSampleRate,
                 AUDIO_CHANNEL, AUDIO_ENCODING);
-        audioRecord = new AudioRecord(AUDIO_INPUT, AUDIO_SAMPLE_RATE, AUDIO_CHANNEL, AUDIO_ENCODING, bufferSizeInBytes);
+        audioRecord = new AudioRecord(AUDIO_INPUT, audioSampleRate, AUDIO_CHANNEL, AUDIO_ENCODING, bufferSizeInBytes);
         this.fileName = fileName;
         status = Status.STATUS_READY;
     }
@@ -155,8 +160,10 @@ public class AudioRecorder {
                 }
                 //清除
                 filesName.clear();
+
+                // 不同参数的录音转成wav时，也要设置好相应的wav头，不然可能会导致声音异常，比如过快或者很慢的现象
                 //将多个pcm文件转化为wav文件
-                mergePCMFilesToWAVFile(filePaths);
+                mergePCMFilesToWAVFile(filePaths, (short) 16, audioSampleRate);
 
             } else {
                 //这里由于只要录音过filesName.size都会大于0,没录音时fileName为null
@@ -253,11 +260,11 @@ public class AudioRecorder {
      *
      * @param filePaths
      */
-    private void mergePCMFilesToWAVFile(final List<String> filePaths) {
+    private void mergePCMFilesToWAVFile(final List<String> filePaths, final short bitPerSample, final int samplesPerSec) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if (PcmToWav.mergePCMFilesToWAVFile(filePaths, FileUtil.getWavFileAbsolutePath(fileName))) {
+                if (PcmToWav.mergePCMFilesToWAVFile(filePaths, bitPerSample, samplesPerSec, FileUtil.getWavFileAbsolutePath(fileName))) {
                     //操作成功
                 } else {
                     //操作失败
@@ -272,11 +279,14 @@ public class AudioRecorder {
     /**
      * 将单个pcm文件转化为wav文件
      */
-    private void makePCMFileToWAVFile() {
+    private void makePCMFileToWAVFile(final short bitPerSample, final int samplesPerSec) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if (PcmToWav.makePCMFileToWAVFile(FileUtil.getPcmFileAbsolutePath(fileName), FileUtil.getWavFileAbsolutePath(fileName), true)) {
+                if (PcmToWav.makePCMFileToWAVFile(FileUtil.getPcmFileAbsolutePath(fileName),
+                        bitPerSample, samplesPerSec,
+                        FileUtil.getWavFileAbsolutePath(fileName),
+                        true)) {
                     //操作成功
                 } else {
                     //操作失败
