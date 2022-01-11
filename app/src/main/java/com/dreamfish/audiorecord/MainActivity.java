@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioFormat;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +14,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 
 import com.dreamfish.record.AudioRecorder;
+import com.dreamfish.record.FileUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +34,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         init();
         addListener();
         verifyPermissions(this);
+        FileUtil.setRootPath(getExternalFilesDir("").getAbsolutePath());
     }
 
     //申请录音权限
@@ -78,7 +82,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     if (audioRecorder.getStatus() == AudioRecorder.Status.STATUS_NO_READY) {
                         //初始化录音
                         String fileName = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
-                        audioRecorder.createDefaultAudio(fileName);
+                        //audioRecorder.createDefaultAudio(fileName);
+                        audioRecorder.createAudio(fileName, MediaRecorder.AudioSource.MIC,
+                                44100, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
                         audioRecorder.startRecord(null);
 
                         start.setText("停止录音");
@@ -125,6 +131,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 Intent showWavList = new Intent(MainActivity.this, ListActivity.class);
                 showWavList.putExtra("type", "wav");
                 startActivity(showWavList);
+                break;
+            default:
                 break;
         }
     }
