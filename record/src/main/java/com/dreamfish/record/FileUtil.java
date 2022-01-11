@@ -15,13 +15,13 @@ import java.util.List;
  */
 public class FileUtil {
 
-    private static String rootPath = "pauseRecordDemo";
+    private static String rootPath = "/sdcard/Android/data/test/cache";
     //原始文件(不能播放)
-    private final static String AUDIO_PCM_BASEPATH = "/" + rootPath + "/pcm/";
+    private final static String AUDIO_PCM_BASEPATH = "/pcm/";
     //可播放的高质量音频文件
-    private final static String AUDIO_WAV_BASEPATH = "/" + rootPath + "/wav/";
+    private final static String AUDIO_WAV_BASEPATH = "/wav/";
 
-    private static void setRootPath(String rootPath) {
+    public static void setRootPath(String rootPath) {
         FileUtil.rootPath = rootPath;
     }
 
@@ -37,7 +37,7 @@ public class FileUtil {
             if (!fileName.endsWith(".pcm")) {
                 fileName = fileName + ".pcm";
             }
-            String fileBasePath = Environment.getExternalStorageDirectory().getAbsolutePath() + AUDIO_PCM_BASEPATH;
+            String fileBasePath = rootPath + AUDIO_PCM_BASEPATH;
             File file = new File(fileBasePath);
             //创建目录
             if (!file.exists()) {
@@ -62,7 +62,7 @@ public class FileUtil {
             if (!fileName.endsWith(".wav")) {
                 fileName = fileName + ".wav";
             }
-            String fileBasePath = Environment.getExternalStorageDirectory().getAbsolutePath() + AUDIO_WAV_BASEPATH;
+            String fileBasePath = rootPath + AUDIO_WAV_BASEPATH;
             File file = new File(fileBasePath);
             //创建目录
             if (!file.exists()) {
@@ -92,7 +92,7 @@ public class FileUtil {
      */
     public static List<File> getPcmFiles() {
         List<File> list = new ArrayList<>();
-        String fileBasePath = Environment.getExternalStorageDirectory().getAbsolutePath() + AUDIO_PCM_BASEPATH;
+        String fileBasePath = rootPath + AUDIO_PCM_BASEPATH;
 
         File rootFile = new File(fileBasePath);
         if (!rootFile.exists()) {
@@ -115,7 +115,7 @@ public class FileUtil {
      */
     public static List<File> getWavFiles() {
         List<File> list = new ArrayList<>();
-        String fileBasePath = Environment.getExternalStorageDirectory().getAbsolutePath() + AUDIO_WAV_BASEPATH;
+        String fileBasePath = rootPath + AUDIO_WAV_BASEPATH;
 
         File rootFile = new File(fileBasePath);
         if (!rootFile.exists()) {
